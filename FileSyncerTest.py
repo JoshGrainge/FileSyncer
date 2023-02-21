@@ -3,8 +3,6 @@ from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
 
-# TODO Change statically typed '/' character in directories to instead use os.path.join()
-
 # TODO Change function names to better ones that indicate what the function does better
 
 # TODO Auto create Saves folder in root
@@ -35,7 +33,7 @@ def upload_save_game_files(gameDirectory):
 def upload_all_files_in_local_dir(localDir, cloudDir):
     files = os.listdir(localDir)
     for file in files:
-        filePath = localDir + '/' + file
+        filePath = os.path.join(localDir, file)
         if os.path.isdir(filePath):
             print("Creating folder: " + file + " in cloud at dir: " + cloudDir)
             newCloudDir = cloudDir + '/' + file
@@ -43,7 +41,7 @@ def upload_all_files_in_local_dir(localDir, cloudDir):
             upload_all_files_in_local_dir(filePath, newCloudDir)
             continue
         print("Creating file: " + file + " in cloud at: " + cloudDir)
-        pc.uploadfile(files=[localDir + "/" + file], path=cloudDir)
+        pc.uploadfile(files=[os.path.join(localDir, file)], path=cloudDir)
 
 def download_save_game_files(gameDirectory):
     _savefilesDestination = askdirectory()
@@ -79,7 +77,7 @@ def download_all_files_in_directory(files, cloudFolderPath, localPath):
         if(file['isfolder']):
             # if folder in local directory already exists, populate that instead
             newCloudPath = cloudFolderPath + '/' + file['name']
-            newFolderPath = localPath + '/' + file['name']
+            newFolderPath = os.path.join(localPath, file['name'])
             if os.path.exists(newFolderPath) == False:
                 os.mkdir(newFolderPath)
             folderFiles = pc.listfolder(folderid=file['folderid'])
@@ -91,7 +89,8 @@ def download_all_files_in_directory(files, cloudFolderPath, localPath):
         stats = pc.stat(fileid=file['fileid'])
         size = stats['metadata']['size']
         bytes = pc.file_read(fd=_fd['fd'], count=size)
-        binaryFile = open(localPath+"/"+file['name'], 'wb')
+        localFilePath = os.path.join(localPath, file['name'])
+        binaryFile = open(localFilePath, 'wb')
         binaryFile.write(bytes)
         binaryFile.close()
         pc.file_close(fd=_fd['fd'])
