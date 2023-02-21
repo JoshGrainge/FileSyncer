@@ -2,8 +2,6 @@ from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
 
-# TODO Change function names to better ones that indicate what the function does better
-
 # TODO Auto create Saves folder in root
 
 def print_save_sub_directories():
