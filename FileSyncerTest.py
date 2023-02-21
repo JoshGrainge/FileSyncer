@@ -7,6 +7,8 @@ import os
 
 # TODO Change function names to better ones that indicate what the function does better
 
+# TODO Auto create Saves folder in root
+
 def print_save_sub_directories():
     meta = pc.listfolder(folderid=0)
     saveDir = pc.listfolder(path=meta['metadata']['contents'][0]['path'])
@@ -17,10 +19,10 @@ def print_save_sub_directories():
         trimmedDirectory = dir['path'].replace(saveDir['metadata']["path"] + "/", '')
         print(trimmedDirectory)
 
-def save_game_files(gameDirectory):
+def upload_save_game_files(gameDirectory):
     localDir = askdirectory()
 
-    # Create folder if none exists
+    # Create folder in cloud if none exists
     cloudDir = '/Saves/' + gameDirectory
     pc.createfolderifnotexists(path=cloudDir)
 
@@ -43,7 +45,7 @@ def upload_all_files_in_local_dir(localDir, cloudDir):
         print("Creating file: " + file + " in cloud at: " + cloudDir)
         pc.uploadfile(files=[localDir + "/" + file], path=cloudDir)
 
-def load_game_files(gameDirectory):
+def download_save_game_files(gameDirectory):
     _savefilesDestination = askdirectory()
 
     meta = pc.listfolder(folderid=0)
@@ -53,6 +55,7 @@ def load_game_files(gameDirectory):
     folderId = False
     savedFolderPath = ""
 
+    # Search for directory
     for dir in saveDir['metadata']['contents']:
         if dir['path'] == '/Saves/'+ gameDirectory:
             savedFolderPath = dir['path']
@@ -63,16 +66,14 @@ def load_game_files(gameDirectory):
         print("Game directory " + gameDirectory + " does not exist")
         return
 
-    # TODO can recursively call this function if its a folder to load all files in the folder (would be a good 
-    # thing to call it open all files or something where the root dir would be the passed as the folders name)
     files = pc.listfolder(folderid=folderId)
-    load_all_files_in_directory(files, savedFolderPath, _savefilesDestination)
+    download_all_files_in_directory(files, savedFolderPath, _savefilesDestination)
     print_finish_message("Finished Downloading files")
    
 
 # Recursive function to load all files in a folder
 # Loads all files in folder (does this recursively for all sub directories as well)
-def load_all_files_in_directory(files, cloudFolderPath, localPath):
+def download_all_files_in_directory(files, cloudFolderPath, localPath):
     for file in files['metadata']['contents']:
         # Create folder with folder name and load all files in folder into newly created folder
         if(file['isfolder']):
@@ -82,29 +83,29 @@ def load_all_files_in_directory(files, cloudFolderPath, localPath):
             if os.path.exists(newFolderPath) == False:
                 os.mkdir(newFolderPath)
             folderFiles = pc.listfolder(folderid=file['folderid'])
-            load_all_files_in_directory(folderFiles, newCloudPath, newFolderPath)
+            download_all_files_in_directory(folderFiles, newCloudPath, newFolderPath)
             continue
             
+        # Write cloud file to local file
         _fd = pc.file_open(path=cloudFolderPath + "/" + file['name'], flags=0)
         stats = pc.stat(fileid=file['fileid'])
         size = stats['metadata']['size']
         bytes = pc.file_read(fd=_fd['fd'], count=size)
-
         binaryFile = open(localPath+"/"+file['name'], 'wb')
         binaryFile.write(bytes)
         binaryFile.close()
+        pc.file_close(fd=_fd['fd'])
 
         print(file['name'] + " was downloaded to: " + localPath)
 
-        pc.file_close(fd=_fd['fd'])
 
 def print_finish_message(message):
     print(message)
     input("Press enter to return to menu...")
 
 # TODO make this a user input to login with a checkbox of remember me to have them only have to do that once
-email = input("Please enter pCloud email:\n")
-password = input("Please enter pCloud password:\n")
+email = input("Enter pCloud email: \n")
+password = input("Enter pCloud password: \n")
 
 pc = PyCloud(email, password)
 pc.listfolder(folderid=0)
@@ -119,6 +120,6 @@ gameName = input("Enter game directory you would like to use (Without the slash)
 # TODO make both these branches button functions instead that will be called when the user
 # clicks the button it will open proper dialogue box with proper action
 if uploadingFiles == "upload":
-    save_game_files(gameName)
+    upload_save_game_files(gameName)
 else:
-    load_game_files(gameName)
+    download_save_game_files(gameName)
