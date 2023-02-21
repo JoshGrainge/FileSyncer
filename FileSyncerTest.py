@@ -1,4 +1,3 @@
-from tkinter.filedialog import askopenfilenames
 from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
