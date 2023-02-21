@@ -3,6 +3,9 @@ from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
 
+# TODO Change statically typed '/' character in directories to instead use os.path.join()
+
+# TODO Change function names to better ones that indicate what the function does better
 
 def print_save_sub_directories():
     meta = pc.listfolder(folderid=0)
@@ -11,19 +14,34 @@ def print_save_sub_directories():
     # List all current sub directories (AKA current games with save files)
     # Removes the directory slash because non programmers are using this mainly
     for dir in saveDir['metadata']['contents']:
-        trimmedDirectory = dir['path'].replace(saveDir['metadata']["path"]+"/", '')
+        trimmedDirectory = dir['path'].replace(saveDir['metadata']["path"] + "/", '')
         print(trimmedDirectory)
 
 def save_game_files(gameDirectory):
-    _files = askopenfilenames()
+    localDir = askdirectory()
 
-    print(_files)
-    pc.createfolderifnotexists(path='/Saves/' + gameDirectory)
+    # Create folder if none exists
+    cloudDir = '/Saves/' + gameDirectory
+    pc.createfolderifnotexists(path=cloudDir)
 
-    for _file in _files:
-        pc.uploadfile(files=[_file], path='/Saves/' + gameDirectory)
+    upload_all_files_in_local_dir(localDir, cloudDir)
 
     print_finish_message("Finished uploading files")
+
+
+# Uploads all files recursively to the cloud
+def upload_all_files_in_local_dir(localDir, cloudDir):
+    files = os.listdir(localDir)
+    for file in files:
+        filePath = localDir + '/' + file
+        if os.path.isdir(filePath):
+            print("Creating folder: " + file + " in cloud at dir: " + cloudDir)
+            newCloudDir = cloudDir + '/' + file
+            pc.createfolderifnotexists(path=newCloudDir)
+            upload_all_files_in_local_dir(filePath, newCloudDir)
+            continue
+        print("Creating file: " + file + " in cloud at: " + cloudDir)
+        pc.uploadfile(files=[localDir + "/" + file], path=cloudDir)
 
 def load_game_files(gameDirectory):
     _savefilesDestination = askdirectory()
@@ -39,7 +57,6 @@ def load_game_files(gameDirectory):
         if dir['path'] == '/Saves/'+ gameDirectory:
             savedFolderPath = dir['path']
             folderId = dir['folderid']
-
 
     # Game folder does not exist
     if folderId == False: 
@@ -86,8 +103,8 @@ def print_finish_message(message):
     input("Press enter to return to menu...")
 
 # TODO make this a user input to login with a checkbox of remember me to have them only have to do that once
-email = input("Please enter email:\n")
-password = input("Please enter email:\n")
+email = input("Please enter pCloud email:\n")
+password = input("Please enter pCloud password:\n")
 
 pc = PyCloud(email, password)
 pc.listfolder(folderid=0)
