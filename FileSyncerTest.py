@@ -3,6 +3,8 @@ from pcloud import PyCloud
 import os
 
 # TODO Auto create Saves folder in root
+# TODO Alter print sub directories to return array of directories as strings
+# TODO Create function to ensure login was successful
 
 def print_save_sub_directories():
     meta = pc.listfolder(folderid=0)
