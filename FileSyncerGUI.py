@@ -6,8 +6,8 @@ create_savedata_file()
 
 saveData = load_savedata()
 
-global login
 login = False
+attemptedLogin = False
 
 savedLoginEmail = saveData['email']
 savedLoginPass = saveData['password']
@@ -31,6 +31,7 @@ def open_login_modal():
         [sg.Input(savedLoginEmail)],
         [sg.Text("pCloud Password:")],
         [sg.Input(savedLoginPass)],
+        [sg.Text("Incorrect login info", background_color='#f00', visible=False, k="LOGIN_ERROR_TEXT")],
         [sg.Text("Remember login:"),sg.Checkbox('')],
         [sg.Button("Login")]
     ]
@@ -38,13 +39,19 @@ def open_login_modal():
     loginWindow = sg.Window("File Syncer", loginLayout, modal=True, element_justification='c')
     while True:
         event, values = loginWindow.read()
+        global login
+        global attemptedLogin
+
+        print(event, values)
 
         # Check if login is correct
         if event == "Login":
-            global login
-            login = True
+            attemptedLogin = True
+
+            loginWindow["LOGIN_ERROR_TEXT"].update(visible=True)
 
             if attempt_login(values[0], values[1]):
+                login = True
                 # Save login info when login was successful
                 if values[2] == True:
                     set_savedata(values[0], values[1], sg.theme())
