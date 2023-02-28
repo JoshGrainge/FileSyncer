@@ -73,8 +73,8 @@ def create_main_window():
                    sg.Tab('Download', [[sg.Text("Cloud Directories:"),sg.Combo(values=currentDirectories, default_value=downloadCombo, readonly=True, enable_events=True, k='CLOUD_DIR_DOWNLOAD'),sg.Button("Download Files")]])
                 ]])
     ],
-    [sg.Text("")],
-    [sg.Image(data=sg.DEFAULT_BASE64_LOADING_GIF, enable_events=True, key='-GIF-IMAGE-')],
+    [sg.Text("Output: ")],
+    [sg.Output(s=(50,4))],
     [sg.Text("")],
     [sg.Text("Theme:"), sg.Combo(values=sg.theme_list(), default_value=sg.theme(), readonly=True, enable_events=True, k='THEME')]
     ]
@@ -89,6 +89,8 @@ while True:
 
     uploadCombo = values['CLOUD_DIR_UPLOAD']
     downloadCombo = values['CLOUD_DIR_DOWNLOAD']
+
+    #print(event, values)
 
     if event == "Upload Files":
         result = combine_paths(values['CLOUD_DIR_UPLOAD'], values['ADD_DIR_INPUT'])
