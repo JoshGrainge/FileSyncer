@@ -2,6 +2,7 @@ from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
 import json
+import _thread
 
 # TODO Auto create Saves folder in root
 # TODO Handle file browser being canceled out of because it crashes program right now
@@ -52,15 +53,17 @@ def combine_paths(cloudDir, addDirInput):
 def upload_save_game_files(gameDirectory):
     global pc
 
+    # Don't do multiple file upload sequences at once
+    if _thread._count() != 0: return
+
     localDir = askdirectory()
 
     # Create folder in cloud if none exists
     cloudDir = '/Saves/' + gameDirectory
     pc.createfolderifnotexists(path=cloudDir)
 
-    _upload_all_files_in_local_dir(localDir, cloudDir)
+    _thread.start_new_thread(_upload_all_files_in_local_dir, (localDir, cloudDir))
 
-    print_finish_message("Finished uploading files")
 
 
 # Uploads all files recursively to the cloud
@@ -79,8 +82,16 @@ def _upload_all_files_in_local_dir(localDir, cloudDir):
         print("Creating file: " + file + " in cloud at: " + cloudDir)
         pc.uploadfile(files=[os.path.join(localDir, file)], path=cloudDir)
 
+    # print finish message
+    if _thread._count() <= 1:
+        print_finish_message("=====Finished uploading files=====")
+
+
 def download_save_game_files(gameDirectory):
     global pc
+
+    # Don't do multiple file download sequences at once
+    if _thread._count() != 0: return
 
     _savefilesDestination = askdirectory()
 
@@ -103,8 +114,8 @@ def download_save_game_files(gameDirectory):
         return
 
     files = pc.listfolder(folderid=folderId)
-    _download_all_files_in_directory(files, savedFolderPath, _savefilesDestination)
-    print_finish_message("Finished Downloading files")
+    _thread.start_new_thread(_download_all_files_in_directory, (files, savedFolderPath, _savefilesDestination))
+
    
 
 # Recursive function to load all files in a folder
@@ -136,6 +147,10 @@ def _download_all_files_in_directory(files, cloudFolderPath, localPath):
         pc.file_close(fd=_fd['fd'])
 
         print(file['name'] + " was downloaded to: " + localPath)
+
+    if _thread._count() == 1:
+        print_finish_message("=====Finished Downloading files=====")
+
 
 def create_savedata_file():
     global fileName

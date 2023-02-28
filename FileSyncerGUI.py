@@ -74,7 +74,7 @@ def create_main_window():
                 ]])
     ],
     [sg.Text("Output: ")],
-    [sg.Output(s=(50,4))],
+    [sg.Output(s=(60,4))],
     [sg.Text("")],
     [sg.Text("Theme:"), sg.Combo(values=sg.theme_list(), default_value=sg.theme(), readonly=True, enable_events=True, k='THEME')]
     ]
