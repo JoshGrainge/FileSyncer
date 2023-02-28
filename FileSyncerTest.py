@@ -1,11 +1,15 @@
 from tkinter.filedialog import askdirectory
 from pcloud import PyCloud
 import os
+import json
 
 # TODO Auto create Saves folder in root
 # TODO Handle file browser being canceled out of because it crashes program right now
 
 global pc
+
+global fileName
+fileName = "FileSyncerSaveData.json"
 
 def attempt_login(_email, _password):
     global pc
@@ -132,6 +136,61 @@ def _download_all_files_in_directory(files, cloudFolderPath, localPath):
         pc.file_close(fd=_fd['fd'])
 
         print(file['name'] + " was downloaded to: " + localPath)
+
+def create_savedata_file():
+    global fileName
+    
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    filePath = dir_path + os.sep + fileName
+    if(os.path.exists(filePath)):
+        return
+
+    baseData = {
+                "email": "",
+                "password": "",
+                "theme": "DarkAmber"
+               }
+    
+    dataObject = json.dumps(baseData, indent=4)
+    _write_data(dataObject)
+        
+
+def load_savedata():
+    global fileName
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    filePath = dir_path + os.sep + fileName
+    if os.path.exists(filePath) == False:
+        return
+    
+    with open(filePath, 'r') as file:
+        jsonObject = json.load(file)
+        file.close()
+        return jsonObject
+
+
+def set_savedata(email, password, theme):
+    data =  {
+                "email": email,
+                "password": password,
+                "theme": theme
+            }
+    dataObject = json.dumps(data, indent=4)
+    _write_data(dataObject)
+    
+
+def _write_data(data):
+    global fileName
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
+    filePath = dir_path + os.sep + fileName
+    
+    with open(filePath, "w") as file:
+        file.write(data)
+        file.close()
+
 
 
 def print_finish_message(message):

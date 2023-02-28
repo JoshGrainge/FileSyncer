@@ -1,13 +1,20 @@
 import PySimpleGUI as sg
 from FileSyncerTest import * 
 
+# Load save data
+create_savedata_file()
+
+saveData = load_savedata()
+
 global login
 login = False
 
-savedLoginEmail = ""
-savedLoginPass = ""
+savedLoginEmail = saveData['email']
+savedLoginPass = saveData['password']
+savedTheme = saveData['theme']
 
-savedTheme = ""
+# Load saved theme
+sg.theme(savedTheme)
 
 currentDirectories = []
 
@@ -18,19 +25,12 @@ global downloadCombo
 downloadCombo = ""
 
 
-def load_login_info():
-    # Check if profile details file exists and if so load email and password
-    global savedLoginEmail
-    global savedLoginPass
-    savedLoginEmail = "Saved Email"
-    savedLoginPass = "Saved Password"
-
 def open_login_modal():
     loginLayout = [
         [sg.Text("pCloud Email:")],
-        [sg.Input("")],
+        [sg.Input(savedLoginEmail)],
         [sg.Text("pCloud Password:")],
-        [sg.Input("")],
+        [sg.Input(savedLoginPass)],
         [sg.Text("Remember login:"),sg.Checkbox('')],
         [sg.Button("Login")]
     ]
@@ -47,8 +47,7 @@ def open_login_modal():
             if attempt_login(values[0], values[1]):
                 # Save login info when login was successful
                 if values[2] == True:
-                    print("Should remember login")
-
+                    set_savedata(values[0], values[1], sg.theme())
                 break
 
         if event == "Exit" or event == sg.WIN_CLOSED:
@@ -109,6 +108,7 @@ while True:
     # Reload window
     if(event == "THEME"):
         sg.theme(values['THEME'])
+        set_savedata(savedLoginEmail, savedLoginPass, sg.theme())
         mainWindow.close()
         mainWindow = create_main_window()
 
