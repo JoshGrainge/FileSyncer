@@ -9,7 +9,6 @@ import _thread
 
 global pc
 
-global fileName
 fileName = "FileSyncerSaveData.json"
 
 def attempt_login(_email, _password):
