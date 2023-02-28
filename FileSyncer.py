@@ -4,8 +4,6 @@ import os
 import json
 import _thread
 
-# TODO Auto create Saves folder in root
-
 global pc
 
 fileName = "FileSyncerSaveData.json"
@@ -27,6 +25,9 @@ def attempt_login(_email, _password):
 
 def get_current_directories():
     global pc
+    # Create /Saves folder if there is not one already, this is for 
+    # organization if you still want to use pCloud for other reasons
+    pc.createfolderifnotexists(path='/Saves')
     meta = pc.listfolder(folderid=0)
     saveDir = pc.listfolder(path=meta['metadata']['contents'][0]['path'])
 
