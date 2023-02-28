@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from FileSyncerTest import * 
+from FileSyncer import * 
 
 # Load save data
 create_savedata_file()
