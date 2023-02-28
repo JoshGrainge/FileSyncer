@@ -3,8 +3,6 @@ from pcloud import PyCloud
 import os
 
 # TODO Auto create Saves folder in root
-# TODO Alter print sub directories to return array of directories as strings
-# TODO Create function to ensure login was successful
 # TODO Handle file browser being canceled out of because it crashes program right now
 
 global pc
