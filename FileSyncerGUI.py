@@ -3,7 +3,6 @@ from FileSyncer import *
 
 # Load save data
 create_savedata_file()
-
 saveData = load_savedata()
 
 login = False
@@ -41,8 +40,6 @@ def open_login_modal():
         event, values = loginWindow.read()
         global login
         global attemptedLogin
-
-        print(event, values)
 
         # Check if login is correct
         if event == "Login":
@@ -92,13 +89,15 @@ mainWindow = create_main_window()
 
 while True:
     event, values = mainWindow.read()
-    mainWindow['ADD_DIR_INPUT'].update(disabled=values['CLOUD_DIR_UPLOAD'] != "Create New Directory")
 
-    uploadCombo = values['CLOUD_DIR_UPLOAD']
-    downloadCombo = values['CLOUD_DIR_DOWNLOAD']
+    # Toggle enable of new directory input
+    createNewDirectorySelected = values['CLOUD_DIR_UPLOAD'] == "Create New Directory"
+    mainWindow['ADD_DIR_INPUT'].update(disabled=not createNewDirectorySelected)
+    # Reset input field when Create New Directory is not selected
+    if not createNewDirectorySelected:
+        mainWindow['ADD_DIR_INPUT'].update(value="")
 
-    #print(event, values)
-
+    # Upload
     if event == "Upload Files":
         result = combine_paths(values['CLOUD_DIR_UPLOAD'], values['ADD_DIR_INPUT'])
         upload_save_game_files(result)
@@ -107,10 +106,14 @@ while True:
             currentDirectories = get_current_directories()
             mainWindow.close()
             mainWindow = create_main_window()
+        else:
+            mainWindow['ADD_DIR_INPUT'].update(value="")
 
+    # Download
     if event == "Download Files":
         download_save_game_files(values['CLOUD_DIR_DOWNLOAD'])
 
+    # Close program
     if event == sg.WIN_CLOSED or event == "My simple app.":
         break
 
