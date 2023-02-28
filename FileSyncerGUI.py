@@ -28,9 +28,9 @@ def load_login_info():
 def open_login_modal():
     loginLayout = [
         [sg.Text("pCloud Email:")],
-        [sg.Input("josh.grainge@hotmail.com")],
+        [sg.Input("")],
         [sg.Text("pCloud Password:")],
-        [sg.Input("ThisIsASecretPasswordForMeAndMyStinkyFriendsOnly!")],
+        [sg.Input("")],
         [sg.Text("Remember login:"),sg.Checkbox('')],
         [sg.Button("Login")]
     ]
@@ -75,6 +75,7 @@ def create_main_window():
                 ]])
     ],
     [sg.Text("")],
+    [sg.Image(data=sg.DEFAULT_BASE64_LOADING_GIF, enable_events=True, key='-GIF-IMAGE-')],
     [sg.Text("")],
     [sg.Text("Theme:"), sg.Combo(values=sg.theme_list(), default_value=sg.theme(), readonly=True, enable_events=True, k='THEME')]
     ]
