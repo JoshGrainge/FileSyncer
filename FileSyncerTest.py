@@ -24,11 +24,10 @@ def attempt_login(_email, _password):
         return False
     
 
-def print_save_sub_directories():
+def get_current_directories():
     global pc
     meta = pc.listfolder(folderid=0)
     saveDir = pc.listfolder(path=meta['metadata']['contents'][0]['path'])
-    print("Current game save directories are: ")
 
     directories = []
 
@@ -37,7 +36,6 @@ def print_save_sub_directories():
     for dir in saveDir['metadata']['contents']:
         trimmedDirectory = dir['path'].replace(saveDir['metadata']["path"] + "/", '')
         directories.append(trimmedDirectory)
-        print(trimmedDirectory)
 
     return directories
         

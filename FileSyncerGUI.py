@@ -60,7 +60,7 @@ while login == False:
         open_login_modal()
 
 # Load current directories
-currentDirectories = print_save_sub_directories()
+currentDirectories = get_current_directories()
 
 def create_main_window():
     global uploadCombo
@@ -95,7 +95,7 @@ while True:
         upload_save_game_files(result)
         # Update directories when new directory is added
         if values['CLOUD_DIR_UPLOAD'] == "Create New Directory":
-            currentDirectories = print_save_sub_directories()
+            currentDirectories = get_current_directories()
             mainWindow.close()
             mainWindow = create_main_window()
 
