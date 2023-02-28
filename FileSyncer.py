@@ -5,7 +5,6 @@ import json
 import _thread
 
 # TODO Auto create Saves folder in root
-# TODO Handle file browser being canceled out of because it crashes program right now
 
 global pc
 
@@ -57,6 +56,10 @@ def upload_save_game_files(gameDirectory):
 
     localDir = askdirectory()
 
+    # When cancel was pressed just return out of function
+    if not localDir:
+        return
+
     # Create folder in cloud if none exists
     cloudDir = '/Saves/' + gameDirectory
     pc.createfolderifnotexists(path=cloudDir)
@@ -93,6 +96,10 @@ def download_save_game_files(gameDirectory):
     if _thread._count() != 0: return
 
     _savefilesDestination = askdirectory()
+
+    # When cancel was pressed just return out of function
+    if not _savefilesDestination:
+        return
 
     meta = pc.listfolder(folderid=0)
     saveDir = pc.listfolder(path=meta['metadata']['contents'][0]['path'])
