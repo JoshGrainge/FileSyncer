@@ -136,26 +136,3 @@ def _download_all_files_in_directory(files, cloudFolderPath, localPath):
 
 def print_finish_message(message):
     print(message)
-
-    '''
-# TODO make this a user input to login with a checkbox of remember me to have them only have to do that once
-email = input("Enter pCloud email: \n")
-password = input("Enter pCloud password: \n")
-
-pc = PyCloud(email, password)
-pc.listfolder(folderid=0)
-
-# Ask if user wants to save or load files
-uploadingFiles = input("Would you like to download or upload files?(Type: upload or download)\n")
-
-print_save_sub_directories()
-
-gameName = input("Enter game directory you would like to use (Without the slash)\n")
-
-# TODO make both these branches button functions instead that will be called when the user
-# clicks the button it will open proper dialogue box with proper action
-if uploadingFiles == "upload":
-    upload_save_game_files(gameName)
-else:
-    download_save_game_files(gameName)
-'''
