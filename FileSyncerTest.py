@@ -5,31 +5,68 @@ import os
 # TODO Auto create Saves folder in root
 # TODO Alter print sub directories to return array of directories as strings
 # TODO Create function to ensure login was successful
+# TODO Handle file browser being canceled out of because it crashes program right now
+
+global pc
+
+def attempt_login(_email, _password):
+    global pc
+
+    # Login details not specified
+    if len(_email) == 0 or len(_password) == 0:
+        return False
+    
+    try:
+        pc = PyCloud(_email, _password)
+        pc.listfolder(folderid=0)
+        return True
+    except:
+        return False
+    
 
 def print_save_sub_directories():
+    global pc
     meta = pc.listfolder(folderid=0)
     saveDir = pc.listfolder(path=meta['metadata']['contents'][0]['path'])
     print("Current game save directories are: ")
+
+    directories = []
+
     # List all current sub directories (AKA current games with save files)
     # Removes the directory slash because non programmers are using this mainly
     for dir in saveDir['metadata']['contents']:
         trimmedDirectory = dir['path'].replace(saveDir['metadata']["path"] + "/", '')
+        directories.append(trimmedDirectory)
         print(trimmedDirectory)
 
+    return directories
+        
+def combine_paths(cloudDir, addDirInput):
+    if(cloudDir == "Create New Directory"):
+        result = addDirInput
+    else:
+        result = cloudDir
+
+    return result
+
 def upload_save_game_files(gameDirectory):
+    global pc
+
     localDir = askdirectory()
 
     # Create folder in cloud if none exists
     cloudDir = '/Saves/' + gameDirectory
     pc.createfolderifnotexists(path=cloudDir)
 
-    upload_all_files_in_local_dir(localDir, cloudDir)
+    _upload_all_files_in_local_dir(localDir, cloudDir)
 
     print_finish_message("Finished uploading files")
 
 
 # Uploads all files recursively to the cloud
-def upload_all_files_in_local_dir(localDir, cloudDir):
+def _upload_all_files_in_local_dir(localDir, cloudDir):
+    global pc
+
     files = os.listdir(localDir)
     for file in files:
         filePath = os.path.join(localDir, file)
@@ -37,12 +74,14 @@ def upload_all_files_in_local_dir(localDir, cloudDir):
             print("Creating folder: " + file + " in cloud at dir: " + cloudDir)
             newCloudDir = cloudDir + '/' + file
             pc.createfolderifnotexists(path=newCloudDir)
-            upload_all_files_in_local_dir(filePath, newCloudDir)
+            _upload_all_files_in_local_dir(filePath, newCloudDir)
             continue
         print("Creating file: " + file + " in cloud at: " + cloudDir)
         pc.uploadfile(files=[os.path.join(localDir, file)], path=cloudDir)
 
 def download_save_game_files(gameDirectory):
+    global pc
+
     _savefilesDestination = askdirectory()
 
     meta = pc.listfolder(folderid=0)
@@ -64,13 +103,15 @@ def download_save_game_files(gameDirectory):
         return
 
     files = pc.listfolder(folderid=folderId)
-    download_all_files_in_directory(files, savedFolderPath, _savefilesDestination)
+    _download_all_files_in_directory(files, savedFolderPath, _savefilesDestination)
     print_finish_message("Finished Downloading files")
    
 
 # Recursive function to load all files in a folder
 # Loads all files in folder (does this recursively for all sub directories as well)
-def download_all_files_in_directory(files, cloudFolderPath, localPath):
+def _download_all_files_in_directory(files, cloudFolderPath, localPath):
+    global pc
+
     for file in files['metadata']['contents']:
         # Create folder with folder name and load all files in folder into newly created folder
         if(file['isfolder']):
@@ -80,7 +121,7 @@ def download_all_files_in_directory(files, cloudFolderPath, localPath):
             if os.path.exists(newFolderPath) == False:
                 os.mkdir(newFolderPath)
             folderFiles = pc.listfolder(folderid=file['folderid'])
-            download_all_files_in_directory(folderFiles, newCloudPath, newFolderPath)
+            _download_all_files_in_directory(folderFiles, newCloudPath, newFolderPath)
             continue
             
         # Write cloud file to local file
@@ -99,8 +140,8 @@ def download_all_files_in_directory(files, cloudFolderPath, localPath):
 
 def print_finish_message(message):
     print(message)
-    input("Press enter to return to menu...")
 
+    '''
 # TODO make this a user input to login with a checkbox of remember me to have them only have to do that once
 email = input("Enter pCloud email: \n")
 password = input("Enter pCloud password: \n")
@@ -121,3 +162,4 @@ if uploadingFiles == "upload":
     upload_save_game_files(gameName)
 else:
     download_save_game_files(gameName)
+'''
